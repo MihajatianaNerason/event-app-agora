@@ -1,4 +1,11 @@
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import {
+  Outlet,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+} from "react-router-dom";
+import { Navbar } from "./components/Navbar";
+import { Section } from "./components/Section";
 import RegisterEmail from "./features/auth/RegisterEmail";
 import VerifyEmail from "./features/auth/VerifyEmail";
 import Profiles from "./features/organizer/Profiles";
@@ -20,11 +27,22 @@ function App() {
         <Route path="/auth/verify-email" element={<VerifyEmail />} />
 
         <Route element={<ProtectedRoute />}>
-          <Route element={<RoleRoute allowedRole="organizer" />}>
-            <Route path="/organizer/profiles" element={<Profiles />} />
-          </Route>
-          <Route element={<RoleRoute allowedRole="participant" />}>
-            <Route path="/user/profiles" element={<ProfilesUser />} />
+          <Route
+            element={
+              <Section>
+                <Navbar />
+                <div className="container mx-auto px-4 py-6">
+                  <Outlet />
+                </div>
+              </Section>
+            }
+          >
+            <Route element={<RoleRoute allowedRole="organizer" />}>
+              <Route path="/organizer/profiles" element={<Profiles />} />
+            </Route>
+            <Route element={<RoleRoute allowedRole="participant" />}>
+              <Route path="/user/profiles" element={<ProfilesUser />} />
+            </Route>
           </Route>
         </Route>
       </Routes>
