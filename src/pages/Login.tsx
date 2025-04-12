@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 const schema = z.object({
@@ -14,11 +15,14 @@ const schema = z.object({
     .string()
     .min(1, { message: "L'email est requis" })
     .email({ message: "Email invalide" }),
+  password: z.string().min(1, { message: "Le mot de passe est requis" }),
 });
 
 type FormData = z.infer<typeof schema>;
 
 export default function Login() {
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -32,14 +36,34 @@ export default function Login() {
   };
 
   const { mutate, isPending, isError, error } = useMutation({
-    mutationFn: async ({ email }: { email: string }) => {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: email,
-        options: {
-          emailRedirectTo: "http://localhost:5173",
-        },
+    mutationFn: async ({ email, password }: FormData) => {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
+
       if (error) throw error;
+
+      // Vérifier le rôle de l'utilisateur pour la redirection
+      const { data: accountData, error: accountError } = await supabase
+        .from("accounts")
+        .select("role")
+        .eq("user_id", data.user.id)
+        .single();
+
+      if (accountError) {
+        console.error("Erreur lors de la récupération du rôle:", accountError);
+        // Si l'utilisateur est connecté mais n'a pas encore complété son profil
+        navigate("/auth/register-email");
+        return;
+      }
+
+      // Rediriger en fonction du rôle
+      if (accountData.role === "organizer") {
+        navigate("/organizer/profiles");
+      } else {
+        navigate("/user/profiles");
+      }
     },
   });
 
@@ -56,6 +80,17 @@ export default function Login() {
                   {errors.email.message}
                 </p>
               )}
+              <Input
+                type="password"
+                placeholder="Mot de passe"
+                {...register("password")}
+                className="mt-2"
+              />
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.password.message}
+                </p>
+              )}
               {isError && (
                 <p className="text-red-500 text-sm mt-1">{error.message}</p>
               )}
@@ -66,9 +101,17 @@ export default function Login() {
               ) : (
                 <Mail className="w-4 h-4" />
               )}
-              Se connecter avec Email
+              Se connecter
             </Button>
           </form>
+          <div className="mt-4 text-center">
+            <a
+              href="/register"
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Pas encore de compte ? S'inscrire
+            </a>
+          </div>
           <div className="my-4 text-center text-sm text-gray-500">ou</div>
           <Button variant="outline" className="w-full flex items-center gap-2">
             Se connecter avec Google

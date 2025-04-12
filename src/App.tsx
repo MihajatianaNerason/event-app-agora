@@ -1,5 +1,6 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import RegisterEmail from "./features/auth/RegisterEmail";
+import VerifyEmail from "./features/auth/VerifyEmail";
 import Profiles from "./features/organizer/Profiles";
 import ProfilesUser from "./features/user/ProfilesUser";
 import Home from "./pages/Home";
@@ -16,6 +17,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/auth/register-email" element={<RegisterEmail />} />
+        <Route path="/auth/verify-email" element={<VerifyEmail />} />
 
         <Route element={<ProtectedRoute />}>
           <Route element={<RoleRoute allowedRole="organizer" />}>

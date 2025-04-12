@@ -7,18 +7,30 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 
-const schema = z.object({
-  email: z
-    .string()
-    .min(1, { message: "L'email est requis" })
-    .email({ message: "Email invalide" }),
-});
+const schema = z
+  .object({
+    email: z
+      .string()
+      .min(1, { message: "L'email est requis" })
+      .email({ message: "Email invalide" }),
+    password: z.string().min(8, {
+      message: "Le mot de passe doit contenir au moins 8 caractères",
+    }),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Les mots de passe ne correspondent pas",
+    path: ["confirmPassword"],
+  });
 
 type FormData = z.infer<typeof schema>;
 
 export default function Register() {
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -32,14 +44,20 @@ export default function Register() {
   };
 
   const { mutate, isPending, isError, error } = useMutation({
-    mutationFn: async ({ email }: { email: string }) => {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: email,
+    mutationFn: async ({ email, password }: FormData) => {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
         options: {
-          emailRedirectTo: "http://localhost:5173/auth/register-email",
+          emailRedirectTo: `${window.location.origin}/auth/register-email`,
         },
       });
+
       if (error) throw error;
+
+      // Au lieu de rediriger directement vers register-email, nous allons rediriger
+      // vers une page qui indique à l'utilisateur de vérifier son email
+      navigate("/auth/verify-email", { state: { email } });
     },
   });
 
@@ -54,6 +72,26 @@ export default function Register() {
               {errors.email && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors.email.message}
+                </p>
+              )}
+              <Input
+                type="password"
+                placeholder="Mot de passe"
+                {...register("password")}
+              />
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.password.message}
+                </p>
+              )}
+              <Input
+                type="password"
+                placeholder="Confirmer le mot de passe"
+                {...register("confirmPassword")}
+              />
+              {errors.confirmPassword && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.confirmPassword.message}
                 </p>
               )}
               {isError && (

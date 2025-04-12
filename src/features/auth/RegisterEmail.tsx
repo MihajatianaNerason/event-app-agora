@@ -13,6 +13,7 @@ import { supabase } from "@/utils/supabaseClient";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { ImageIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -54,6 +55,9 @@ type FormData = z.infer<typeof schema>;
 
 export default function RegisterEmail() {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
+
   const {
     register,
     control,
@@ -66,6 +70,24 @@ export default function RegisterEmail() {
     },
   });
 
+  // Vérifier que l'utilisateur est authentifié avant de permettre
+  // l'accès à ce formulaire
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      const { data, error } = await supabase.auth.getUser();
+
+      if (error || !data.user) {
+        setAuthError("Vous devez vous connecter pour accéder à cette page");
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(false);
+    };
+
+    checkAuthStatus();
+  }, [navigate]);
+
   const { mutate, isPending, isError, error } = useMutation({
     mutationKey: ["register-email"],
     mutationFn: async (data: FormData) => {
@@ -74,8 +96,7 @@ export default function RegisterEmail() {
         error,
       } = await supabase.auth.getUser();
       if (error) {
-        // throw error;
-        console.log("error getuser");
+        throw error;
       }
 
       if (!user) throw new Error("Utilisateur non authentifié");
@@ -110,6 +131,32 @@ export default function RegisterEmail() {
   const onSubmit = (data: FormData) => {
     mutate(data);
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <Loader size="lg" />
+      </div>
+    );
+  }
+
+  if (authError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <Card className="w-full max-w-md p-6 shadow-lg">
+          <CardContent>
+            <h2 className="text-2xl font-bold mb-4 text-center">
+              Erreur d'authentification
+            </h2>
+            <p className="text-red-500 text-center mb-4">{authError}</p>
+            <Button onClick={() => navigate("/login")} className="w-full">
+              Se connecter
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -180,6 +227,7 @@ export default function RegisterEmail() {
             {isError && (
               <p className="text-red-500 text-sm mt-1">{error.message}</p>
             )}
+
             <Button type="submit" className="w-full" disabled={isPending}>
               {isPending ? <Loader size="sm" /> : "Terminer l'inscription"}
             </Button>
