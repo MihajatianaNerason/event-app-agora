@@ -10,9 +10,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/utils/supabaseClient";
+import { uploadImage } from "@/utils/uploadImage";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { ImageIcon } from "lucide-react";
+import { ImageIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -57,11 +58,14 @@ export default function RegisterEmail() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const {
     register,
     control,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -101,16 +105,41 @@ export default function RegisterEmail() {
 
       if (!user) throw new Error("Utilisateur non authentifié");
 
-      // let image_url = "";
-      // if (data.profileImage && data.profileImage.length > 0) {
-      //   image_url = await UploadImage(data.profileImage[0]);
-      // }
+      let imageUrl = "";
 
+      // Upload profile image if one is selected
+      if (data.profileImage && data.profileImage.length > 0) {
+        try {
+          imageUrl = await uploadImage(data.profileImage[0], "account-picture");
+        } catch (error: unknown) {
+          console.error("Error uploading profile image:", error);
+
+          // Determine if this is a permissions error or something else
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+
+          if (errorMessage.includes("permission")) {
+            throw new Error(
+              "Erreur d'autorisation: Vous n'avez pas les permissions nécessaires pour télécharger des images."
+            );
+          } else if (errorMessage.includes("row-level security policy")) {
+            throw new Error(
+              "Erreur de sécurité: La politique de sécurité empêche le téléchargement. Veuillez contacter l'administrateur."
+            );
+          } else {
+            throw new Error(
+              `Échec du téléchargement de l'image de profil: ${errorMessage}`
+            );
+          }
+        }
+      }
+
+      // Continue with account creation even if image upload failed
       const { error: updateError } = await supabase.from("accounts").insert([
         {
           user_id: user.id,
           full_name: data.fullName,
-          image_url: "image_url",
+          image_url: imageUrl || null,
           role: data.role,
         },
       ]);
@@ -130,6 +159,31 @@ export default function RegisterEmail() {
 
   const onSubmit = (data: FormData) => {
     mutate(data);
+  };
+
+  // Handle file selection to display the selected filename and preview
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      setSelectedFileName(files[0].name);
+
+      // Create a preview of the selected image
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(files[0]);
+    } else {
+      setSelectedFileName(null);
+      setImagePreview(null);
+    }
+  };
+
+  // Clear the selected image
+  const clearImage = () => {
+    setValue("profileImage", undefined);
+    setSelectedFileName(null);
+    setImagePreview(null);
   };
 
   if (isLoading) {
@@ -175,24 +229,47 @@ export default function RegisterEmail() {
               )}
             </div>
             <div>
-              <label
-                htmlFor="profileImage"
-                className="block w-full cursor-pointer"
-              >
-                <div className="flex items-center gap-2 px-3 py-2 border rounded-md hover:bg-gray-50">
-                  <ImageIcon className="w-5 h-5 text-gray-500" />
-                  <span className="text-gray-600">
-                    Choisir une photo de profil
-                  </span>
+              {imagePreview ? (
+                <div className="relative w-full">
+                  <div className="flex justify-center mb-2">
+                    <div className="relative">
+                      <img
+                        src={imagePreview}
+                        alt="Aperçu"
+                        className="h-40 w-40 object-cover rounded-full"
+                      />
+                      <button
+                        type="button"
+                        onClick={clearImage}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <Input
-                  id="profileImage"
-                  type="file"
-                  className="hidden"
-                  accept={ACCEPTED_IMAGE_TYPES.join(",")}
-                  {...register("profileImage")}
-                />
-              </label>
+              ) : (
+                <label
+                  htmlFor="profileImage"
+                  className="block w-full cursor-pointer"
+                >
+                  <div className="flex items-center gap-2 px-3 py-2 border rounded-md hover:bg-gray-50">
+                    <ImageIcon className="w-5 h-5 text-gray-500" />
+                    <span className="text-gray-600">
+                      {selectedFileName || "Choisir une photo de profil"}
+                    </span>
+                  </div>
+                  <Input
+                    id="profileImage"
+                    type="file"
+                    className="hidden"
+                    accept={ACCEPTED_IMAGE_TYPES.join(",")}
+                    {...register("profileImage", {
+                      onChange: handleFileChange,
+                    })}
+                  />
+                </label>
+              )}
               {errors.profileImage && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors.profileImage.message as string}
