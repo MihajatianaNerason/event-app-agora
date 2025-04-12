@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from "./ProtectedRoutes";
+import RoleRoute from "./RoleRoute";
 
 function App() {
   return (
@@ -17,8 +18,12 @@ function App() {
         <Route path="/auth/register-email" element={<RegisterEmail />} />
 
         <Route element={<ProtectedRoute />}>
-          <Route path="/organizer/profiles" element={<Profiles />} />
-          <Route path="/user/profiles" element={<ProfilesUser />} />
+          <Route element={<RoleRoute allowedRole="organizer" />}>
+            <Route path="/organizer/profiles" element={<Profiles />} />
+          </Route>
+          <Route element={<RoleRoute allowedRole="participant" />}>
+            <Route path="/user/profiles" element={<ProfilesUser />} />
+          </Route>
         </Route>
       </Routes>
     </Router>
