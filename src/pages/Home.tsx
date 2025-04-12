@@ -1,7 +1,14 @@
 import { Button } from "@/components/ui/button";
+import useAuth from "@/features/auth/useAuth";
 import { BellIcon, CalendarIcon, UsersIcon } from "lucide-react";
-
+import { Navigate } from "react-router-dom";
 export default function Home() {
+  const { userStatus } = useAuth();
+
+  if (userStatus === "signed-in") {
+    return <Navigate to="/organizer/profiles" />;
+  }
+
   return (
     <div className="min-h-screen">
       <section className="py-20 px-6 md:px-20 space-y-10">
