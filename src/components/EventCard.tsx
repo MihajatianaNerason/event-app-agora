@@ -84,9 +84,9 @@ function EventCard({ event }: EventCardProps) {
       <div className="flex-1 flex flex-col">
         {/* Header with title, badge */}
         <div className="flex items-start mb-2">
-          <div className="flex-1">
+          <div className="w-full flex justify-between items-center">
+            <CardTitle className="text-xl">{event.title}</CardTitle>
             {renderStatusBadge(event.status)}
-            <CardTitle className="mt-1.5 text-xl">{event.title}</CardTitle>
           </div>
         </div>
 
