@@ -9,6 +9,7 @@ import { Section } from "./components/Section";
 import RegisterEmail from "./features/auth/RegisterEmail";
 import VerifyEmail from "./features/auth/VerifyEmail";
 import Profiles from "./features/organizer/Profiles";
+import CreateEvents from "./features/organizer/views/CreateEvents";
 import Dashboard from "./features/organizer/views/Dashboard";
 import ProfilesUser from "./features/user/ProfilesUser";
 import Home from "./pages/Home";
@@ -41,6 +42,10 @@ function App() {
             <Route element={<RoleRoute allowedRole="organizer" />}>
               <Route path="/organizer/profiles" element={<Profiles />} />
               <Route path="/organizer/dashboard" element={<Dashboard />} />
+              <Route
+                path="/organizer/events/create"
+                element={<CreateEvents />}
+              />
             </Route>
             <Route element={<RoleRoute allowedRole="participant" />}>
               <Route path="/user/profiles" element={<ProfilesUser />} />

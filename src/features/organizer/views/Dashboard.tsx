@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -9,16 +10,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useSession } from "@/hooks/useSession";
+import { useUsers } from "@/hooks/useUser";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useEventsByUser } from "../hooks/useEvents";
 import { EventStatus } from "../types";
 
 function Dashboard() {
   const { data: sessionData } = useSession();
   const userId = sessionData?.session?.user.id;
-  const { data: events, isLoading, error } = useEventsByUser(Number(userId));
-
+  const { data: user } = useUsers(userId);
+  const {
+    data: events,
+    isLoading,
+    error,
+  } = useEventsByUser(Number(user?.[0].id));
+  const navigate = useNavigate();
   const formatDate = (dateString: string | Date | null) => {
     if (!dateString) return "Non définie";
     try {
@@ -31,7 +40,7 @@ function Dashboard() {
   const renderStatusBadge = (status: EventStatus) => {
     switch (status) {
       case EventStatus.DRAFT:
-        return <Badge variant="outline">Brouillon</Badge>;
+        return <Badge variant="outline">Non Officiel</Badge>;
       case EventStatus.OFFICIALL:
         return <Badge variant="default">Officiel</Badge>;
       default:
@@ -45,11 +54,17 @@ function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <h1 className="text-2xl font-bold tracking-tight">Tableau de bord</h1>
-        <p className="text-muted-foreground">
-          (Gérez vos événements et suivez leur statut)
-        </p>
+      <div className="flex flex-col items-start gap-4 md:flex-row  md:items-center justify-between">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center ">
+          <h1 className="text-2xl font-bold tracking-tight">Tableau de bord</h1>
+          <p className="text-muted-foreground">
+            (Gérez vos événements et suivez leur statut)
+          </p>
+        </div>
+        <Button onClick={() => navigate("/organizer/events/create")}>
+          <Plus className="mr-2 h-4 w-4" />
+          Créer un événement
+        </Button>
       </div>
 
       {isLoading ? (
