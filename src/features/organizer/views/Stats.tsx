@@ -179,55 +179,57 @@ function Stats() {
   };
 
   return (
-    <div className="flex h-full">
-      {/* Sidebar pour les écrans larges */}
-      <div className="hidden md:block">
-        <div className="w-64 fixed h-screen border">
-          <div className="space-y-4 py-4">
-            <div className="px-3 py-2">
-              <h2 className="mb-2 px-4 text-lg font-semibold">Navigation</h2>
-              <div className="space-y-1">
-                <Button
-                  variant={currentView === "global" ? "secondary" : "ghost"}
-                  className="w-full justify-start"
-                  onClick={() => setCurrentView("global")}
-                >
-                  Statistiques Globales
-                </Button>
-                <Button
-                  variant={currentView === "events" ? "secondary" : "ghost"}
-                  className="w-full justify-start"
-                  onClick={() => setCurrentView("events")}
-                >
-                  Statistiques par Événement
-                </Button>
+    <div className="flex flex-col min-h-screen">
+      <div className="flex flex-1">
+        {/* Sidebar pour les écrans larges */}
+        <div className="hidden md:block w-64">
+          <div className="sticky top-16 border h-[calc(100vh-4rem)] rounded-lg">
+            <div className="space-y-4 py-4">
+              <div className="px-3 py-2">
+                <h2 className="mb-2 px-4 text-lg font-semibold">Navigation</h2>
+                <div className="space-y-1">
+                  <Button
+                    variant={currentView === "global" ? "secondary" : "ghost"}
+                    className="w-full justify-start"
+                    onClick={() => setCurrentView("global")}
+                  >
+                    Statistiques Globales
+                  </Button>
+                  <Button
+                    variant={currentView === "events" ? "secondary" : "ghost"}
+                    className="w-full justify-start"
+                    onClick={() => setCurrentView("events")}
+                  >
+                    Statistiques par Événement
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Sheet pour mobile */}
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button
+              variant="secondary"
+              size="icon"
+              className="md:hidden fixed top-20 left-4 z-50"
+            >
+              <Menu className="h-6 w-6" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-64 p-0">
+            <SheetHeader className="p-4">
+              <SheetTitle>Navigation</SheetTitle>
+            </SheetHeader>
+            <SidebarContent />
+          </SheetContent>
+        </Sheet>
+
+        {/* Main Content */}
+        <div className="flex-1 overflow-auto">{renderContent()}</div>
       </div>
-
-      {/* Sheet pour mobile */}
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button
-            variant="secondary"
-            size="icon"
-            className="md:hidden fixed top-4 left-4 z-50"
-          >
-            <Menu className="h-6 w-6" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="w-64 p-0">
-          <SheetHeader className="p-4">
-            <SheetTitle>Navigation</SheetTitle>
-          </SheetHeader>
-          <SidebarContent />
-        </SheetContent>
-      </Sheet>
-
-      {/* Main Content */}
-      <div className="flex-1 md:ml-64 overflow-auto">{renderContent()}</div>
     </div>
   );
 }
