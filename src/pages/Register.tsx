@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/utils/supabaseClient";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Mail } from "lucide-react";
+import { Eye, EyeOff, Mail } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -30,6 +31,8 @@ type FormData = z.infer<typeof schema>;
 
 export default function Register() {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
@@ -67,44 +70,86 @@ export default function Register() {
         <CardContent>
           <h2 className="text-2xl font-bold mb-4 text-center">Inscription</h2>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <Input type="email" placeholder="Email" {...register("email")} />
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.email.message}
-                </p>
-              )}
-              <Input
-                type="password"
-                placeholder="Mot de passe"
-                {...register("password")}
-              />
-              {errors.password && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.password.message}
-                </p>
-              )}
-              <Input
-                type="password"
-                placeholder="Confirmer le mot de passe"
-                {...register("confirmPassword")}
-              />
-              {errors.confirmPassword && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.confirmPassword.message}
-                </p>
-              )}
+            <div className="space-y-4">
+              <div>
+                <Input
+                  type="email"
+                  placeholder="Email"
+                  {...register("email")}
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.email.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Mot de passe"
+                  {...register("password")}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+                {errors.password && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="relative">
+                <Input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirmer le mot de passe"
+                  {...register("confirmPassword")}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+                {errors.confirmPassword && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.confirmPassword.message}
+                  </p>
+                )}
+              </div>
+
               {isError && (
                 <p className="text-red-500 text-sm mt-1">{error.message}</p>
               )}
             </div>
             <Button type="submit" className="w-full flex items-center gap-2">
               {isPending ? (
-                <Loader size={"sm"} />
+                <>
+                  <Loader size={"sm"} />
+                  <span className="text-muted">Loading ...</span>
+                </>
               ) : (
-                <Mail className="w-4 h-4" />
+                <>
+                  <Mail className="w-4 h-4" />
+                  S'inscrire avec Email
+                </>
               )}
-              S'inscrire avec Email
             </Button>
           </form>
           <div className="my-4 text-center text-sm text-gray-500">ou</div>
