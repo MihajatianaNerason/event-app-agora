@@ -177,7 +177,7 @@ function Dashboard() {
                       {event.title}
                     </div>
                   </TableCell>
-                  <TableCell className="max-w-[250px]">
+                  <TableCell className="max-w-[200px]">
                     <div className="truncate" title={event.description}>
                       {event.description}
                     </div>

@@ -2,17 +2,53 @@ import EventCard from "@/components/EventCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEvents } from "@/features/organizer/hooks/useEvents";
-import { EventStatus } from "@/features/organizer/types";
-import { useState } from "react";
+import { Event, EventStatus } from "@/features/organizer/types";
+import { Loader2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 function EventList() {
-  const { data: events, isLoading, error } = useEvents();
+  const {
+    data,
+    isLoading,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useEvents();
   const [filterStatus, setFilterStatus] = useState<EventStatus | "all">("all");
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  const filteredEvents =
-    filterStatus === "all"
-      ? events
-      : events?.filter((event) => event.status === filterStatus);
+  // Intersection Observer pour l'infinite scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentRef = loadMoreRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  // Filtrer les événements de toutes les pages
+  const filteredEvents = useMemo(() => {
+    const allEvents = data?.pages?.flatMap((page: Event[]) => page) ?? [];
+    return filterStatus === "all"
+      ? allEvents
+      : allEvents.filter((event: Event) => event.status === filterStatus);
+  }, [data, filterStatus]);
 
   if (error) {
     return <div className="text-red-500">Erreur: {error.message}</div>;
@@ -60,12 +96,12 @@ function EventList() {
           </div>
         </div>
       </div>
-      <div className="max-w-3xl mx-auto px-4">
+      <div className="max-w-xl mx-auto px-4">
         {/* Event list */}
         <div className="space-y-4">
           {isLoading ? (
             // Loading skeletons
-            [...Array(5)].map((_, index) => (
+            [...Array(3)].map((_, index) => (
               <Skeleton key={index} className="h-64 w-full rounded-md" />
             ))
           ) : !filteredEvents || filteredEvents.length === 0 ? (
@@ -78,9 +114,28 @@ function EventList() {
             </div>
           ) : (
             // Event cards
-            filteredEvents.map((event) => (
-              <EventCard key={event.id} event={event} />
-            ))
+            <>
+              {filteredEvents.map((event: Event) => (
+                <EventCard key={event.id} event={event} />
+              ))}
+              {/* Loading indicator and intersection observer target */}
+              <div ref={loadMoreRef} className="py-4 text-center">
+                {isFetchingNextPage ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Chargement...</span>
+                  </div>
+                ) : hasNextPage ? (
+                  <span className="text-muted-foreground">
+                    Faites défiler pour charger plus
+                  </span>
+                ) : (
+                  <span className="text-muted-foreground">
+                    Plus aucun événement à charger
+                  </span>
+                )}
+              </div>
+            </>
           )}
         </div>
       </div>

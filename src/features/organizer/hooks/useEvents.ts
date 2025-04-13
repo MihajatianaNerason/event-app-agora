@@ -1,18 +1,39 @@
 import { supabase } from "@/utils/supabaseClient";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getEvents, getEventsByUser } from "../services/eventService";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { getEventsByUser } from "../services/eventService";
 import { Event, EventFormData } from "../types";
+
+const ITEMS_PER_PAGE = 3;
 
 /**
  * Hook to fetch all events
  * Uses Tanstack Query for data fetching, caching, and automatic refetching
  */
 export function useEvents() {
-  return useQuery<Event[], Error>({
+  return useInfiniteQuery<Event[], Error, Event[], [string], number>({
     queryKey: ["events"],
-    queryFn: async () => {
-      return getEvents();
+    queryFn: async ({ pageParam = 0 }) => {
+      const start = pageParam * ITEMS_PER_PAGE;
+      const end = start + ITEMS_PER_PAGE - 1;
+
+      const { data, error } = await supabase
+        .from("events")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .range(start, end);
+
+      if (error) throw error;
+      return data || [];
     },
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.length === ITEMS_PER_PAGE ? allPages.length : undefined;
+    },
+    initialPageParam: 0,
   });
 }
 
