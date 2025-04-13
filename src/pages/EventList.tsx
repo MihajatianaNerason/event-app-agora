@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useEvents } from "@/features/organizer/hooks/useEvents";
 import { Event, EventStatus } from "@/features/organizer/types";
 import { useDebounce } from "@/hooks/useDebounce";
-import { UseInfiniteQueryResult } from "@tanstack/react-query";
+import { InfiniteData } from "@tanstack/react-query";
 import { CalendarRange, Loader2, Search } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -17,7 +17,7 @@ function EventList() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useEvents() as UseInfiniteQueryResult<Event[], Error>;
+  } = useEvents();
 
   const [filterStatus, setFilterStatus] = useState<EventStatus | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -51,26 +51,28 @@ function EventList() {
   // Filtrer les événements de toutes les pages
   const filteredEvents = useMemo(() => {
     if (!data) return [];
-    const allEvents = data.pages.flatMap((page: Event[]) => page);
 
-    return allEvents
-      .filter((event: Event) => {
-        const matchesStatus =
-          filterStatus === "all" || event.status === filterStatus;
-        const matchesSearch =
-          debouncedSearch === "" ||
-          event.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-          event.description
-            .toLowerCase()
-            .includes(debouncedSearch.toLowerCase());
-
-        return matchesStatus && matchesSearch;
-      })
-      .sort((a: Event, b: Event) => {
+    // Traiter chaque page séparément pour préserver l'ordre de chargement
+    const paginatedData = data as unknown as InfiniteData<Event[]>;
+    const allEvents = paginatedData.pages.flatMap((page: Event[]) => {
+      // Trier les événements au sein de chaque page
+      return page.sort((a: Event, b: Event) => {
         const dateA = new Date(a.start_date || 0);
         const dateB = new Date(b.start_date || 0);
-        return dateB.getTime() - dateA.getTime(); // Tri par date décroissante
+        return dateB.getTime() - dateA.getTime();
       });
+    });
+
+    return allEvents.filter((event: Event) => {
+      const matchesStatus =
+        filterStatus === "all" || event.status === filterStatus;
+      const matchesSearch =
+        debouncedSearch === "" ||
+        event.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        event.description.toLowerCase().includes(debouncedSearch.toLowerCase());
+
+      return matchesStatus && matchesSearch;
+    });
   }, [data, filterStatus, debouncedSearch]);
 
   if (error) {
