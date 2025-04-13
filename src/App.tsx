@@ -1,3 +1,4 @@
+import EditProfile from "@/components/EditProfile";
 import {
   Outlet,
   Route,
@@ -61,9 +62,13 @@ function App() {
                 element={<EditEvent />}
               />
               <Route path="/organizer/stats" element={<Stats />} />
+              <Route path="/organizer/profile" element={<Profiles />} />
+              <Route path="/organizer/profile/edit" element={<EditProfile />} />
             </Route>
             <Route element={<RoleRoute allowedRole="participant" />}>
               <Route path="/user/profiles" element={<ProfilesUser />} />
+              <Route path="/profile" element={<ProfilesUser />} />
+              <Route path="/profile/edit" element={<EditProfile />} />
             </Route>
           </Route>
         </Route>
