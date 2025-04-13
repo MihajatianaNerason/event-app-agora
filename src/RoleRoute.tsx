@@ -13,12 +13,7 @@ const RoleRoute = ({ allowedRole, children }: RoleRouteProps) => {
   const userRole = users?.[0]?.role;
 
   if (userRole !== allowedRole) {
-    return (
-      <Navigate
-        to={userRole === "organizer" ? "/organizer/profiles" : "/user/profiles"}
-        replace
-      />
-    );
+    return <Navigate to="/events" replace />;
   }
 
   return children ? children : <Outlet />;
