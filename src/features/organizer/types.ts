@@ -4,6 +4,12 @@ export enum EventStatus {
   OFFICIALL = "official",
 }
 
+export interface User {
+  id: number;
+  full_name: string;
+  image_url?: string | null;
+}
+
 export interface Event {
   id?: number;
   title: string;
@@ -16,6 +22,7 @@ export interface Event {
   image_url?: string | null;
   location?: string | null;
   created_at?: Date | string;
+  users?: User;
 }
 
 export interface EventFormData {

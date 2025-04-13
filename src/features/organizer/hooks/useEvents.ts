@@ -23,7 +23,16 @@ export function useEvents() {
 
       const { data, error } = await supabase
         .from("events")
-        .select("*")
+        .select(
+          `
+          *,
+          users:created_by (
+            id,
+            full_name,
+            image_url
+          )
+        `
+        )
         .order("created_at", { ascending: false })
         .range(start, end);
 

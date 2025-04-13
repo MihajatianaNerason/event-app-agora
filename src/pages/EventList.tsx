@@ -15,6 +15,7 @@ function EventList() {
     hasNextPage,
     isFetchingNextPage,
   } = useEvents();
+
   const [filterStatus, setFilterStatus] = useState<EventStatus | "all">("all");
   const loadMoreRef = useRef<HTMLDivElement>(null);
 

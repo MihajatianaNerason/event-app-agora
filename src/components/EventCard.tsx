@@ -8,8 +8,9 @@ import {
 import { Event, EventStatus } from "@/features/organizer/types";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Calendar, MapPin, Phone } from "lucide-react";
+import { Calendar, MapPin, Phone, User } from "lucide-react";
 import { EventVoting } from "./EventVoting";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 interface EventCardProps {
   event: Event;
@@ -64,7 +65,9 @@ function EventCard({ event }: EventCardProps) {
         {/* Header with title, badge */}
         <div className="flex items-start mb-2">
           <div className="w-full flex justify-between items-center">
-            <CardTitle className="text-xl">{event.title}</CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-xl">{event.title}</CardTitle>
+            </div>
             {renderStatusBadge(event.status)}
           </div>
         </div>
@@ -111,7 +114,19 @@ function EventCard({ event }: EventCardProps) {
       </div>
 
       {/* Vote footer */}
-      <CardFooter className="flex justify-end items-center mt-4 pt-4 border-t">
+      <CardFooter className="flex justify-between items-center mt-4 pt-4 border-t">
+        {/* Creator info */}
+        <div className="flex items-center gap-2">
+          <Avatar className="h-8 w-8 border-2">
+            <AvatarImage src={event.users?.image_url || ""} />
+            <AvatarFallback>
+              <User className="h-4 w-4" />
+            </AvatarFallback>
+          </Avatar>
+          <span className="text-sm text-muted-foreground underline">
+            {event.users?.full_name || "Utilisateur inconnu"}
+          </span>
+        </div>
         <EventVoting eventId={event.id} />
       </CardFooter>
     </Card>
