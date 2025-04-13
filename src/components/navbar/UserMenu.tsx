@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { UserProfileData } from "@/hooks/useUserProfile";
-import { LayoutDashboard, LogOut, User } from "lucide-react";
+import { ChartPie, LayoutDashboard, LogOut, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { UserAvatar } from "./UserAvatar";
 
@@ -43,10 +43,16 @@ export function UserMenu({ userProfile, onSignOut }: UserMenuProps) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         {userProfile.role === "organizer" && (
-          <DropdownMenuItem onClick={() => navigate("/organizer/dashboard")}>
-            <LayoutDashboard className="mr-2 h-4 w-4" />
-            <span>Dashboard</span>
-          </DropdownMenuItem>
+          <>
+            <DropdownMenuItem onClick={() => navigate("/organizer/dashboard")}>
+              <LayoutDashboard className="mr-2 h-4 w-4" />
+              <span>Dashboard</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <ChartPie className="mr-2 h-4 w-4" />
+              <span>Stats</span>
+            </DropdownMenuItem>
+          </>
         )}
         <DropdownMenuItem
           onClick={() =>
