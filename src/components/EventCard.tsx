@@ -8,35 +8,14 @@ import {
 import { Event, EventStatus } from "@/features/organizer/types";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Calendar, MapPin, Phone, ThumbsDown, ThumbsUp } from "lucide-react";
-import { useState } from "react";
+import { Calendar, MapPin, Phone } from "lucide-react";
+import { EventVoting } from "./EventVoting";
 
 interface EventCardProps {
   event: Event;
 }
 
 function EventCard({ event }: EventCardProps) {
-  const [votes, setVotes] = useState(0);
-  const [userVote, setUserVote] = useState<"up" | "down" | null>(null);
-
-  const handleVote = (direction: "up" | "down") => {
-    if (userVote === direction) {
-      // Annulation du vote
-      setUserVote(null);
-      setVotes(direction === "up" ? votes - 1 : votes + 1);
-    } else {
-      // Changement ou ajout de vote
-      setUserVote(direction);
-      if (userVote) {
-        // Changement de direction (2 points de différence)
-        setVotes(direction === "up" ? votes + 2 : votes - 2);
-      } else {
-        // Nouveau vote
-        setVotes(direction === "up" ? votes + 1 : votes - 1);
-      }
-    }
-  };
-
   const formatDate = (dateString: string | Date | null) => {
     if (!dateString) return "Non définie";
     try {
@@ -84,9 +63,9 @@ function EventCard({ event }: EventCardProps) {
       <div className="flex-1 flex flex-col">
         {/* Header with title, badge */}
         <div className="flex items-start mb-2">
-          <div className="flex-1">
+          <div className="w-full flex justify-between items-center">
+            <CardTitle className="text-xl">{event.title}</CardTitle>
             {renderStatusBadge(event.status)}
-            <CardTitle className="mt-1.5 text-xl">{event.title}</CardTitle>
           </div>
         </div>
 
@@ -132,45 +111,8 @@ function EventCard({ event }: EventCardProps) {
       </div>
 
       {/* Vote footer */}
-      <CardFooter className="flex justify-between items-center mt-4 pt-4 border-t">
-        <div className="flex items-center gap-1">
-          <span
-            className={`text-sm font-semibold ${
-              userVote === "up"
-                ? "text-primary"
-                : userVote === "down"
-                ? "text-destructive"
-                : "text-muted-foreground"
-            }`}
-          >
-            {votes}
-          </span>
-          <span className="text-xs text-muted-foreground ml-1">votes</span>
-        </div>
-        <div className="flex gap-4">
-          <button
-            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium hover:bg-primary/10 transition-colors ${
-              userVote === "up"
-                ? "text-primary bg-primary/10"
-                : "text-muted-foreground"
-            }`}
-            onClick={() => handleVote("up")}
-          >
-            <ThumbsUp size={16} />
-            <span>Intéressant</span>
-          </button>
-          <button
-            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium hover:bg-destructive/10 transition-colors ${
-              userVote === "down"
-                ? "text-destructive bg-destructive/10"
-                : "text-muted-foreground"
-            }`}
-            onClick={() => handleVote("down")}
-          >
-            <ThumbsDown size={16} />
-            <span>Non intéressant</span>
-          </button>
-        </div>
+      <CardFooter className="flex justify-end items-center mt-4 pt-4 border-t">
+        <EventVoting eventId={event.id} />
       </CardFooter>
     </Card>
   );
