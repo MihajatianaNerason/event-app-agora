@@ -127,7 +127,7 @@ function EventCard({ event }: EventCardProps) {
             {event.users?.full_name || "Utilisateur inconnu"}
           </span>
         </div>
-        <EventVoting eventId={event.id} />
+        <EventVoting eventId={event.id} className="flex-col md:flex-row" />
       </CardFooter>
     </Card>
   );
