@@ -48,7 +48,7 @@ export function UserMenu({ userProfile, onSignOut }: UserMenuProps) {
               <LayoutDashboard className="mr-2 h-4 w-4" />
               <span>Dashboard</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/organizer/stats")}>
               <ChartPie className="mr-2 h-4 w-4" />
               <span>Stats</span>
             </DropdownMenuItem>

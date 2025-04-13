@@ -39,3 +39,10 @@ export interface EventFormData {
 // Constants for event validation
 export const MAX_TITLE_LENGTH = 100;
 export const MAX_DESCRIPTION_LENGTH = 1000;
+
+export interface EventStats {
+  event_id: number;
+  title: string;
+  interests_count: number;
+  no_interests_count: number;
+}

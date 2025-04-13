@@ -8,6 +8,7 @@ export interface UserProfileData {
   imageUrl: string | undefined;
   role: "organizer" | "participant" | undefined;
   initials: string;
+  userId: number | undefined;
 }
 
 export function useUserProfile(): UserProfileData {
@@ -35,5 +36,6 @@ export function useUserProfile(): UserProfileData {
     imageUrl: userProfile?.image_url,
     role: userProfile?.role as "organizer" | "participant" | undefined,
     initials: userInitials,
+    userId: userProfile?.id ? Number(userProfile.id) : undefined,
   };
 }
