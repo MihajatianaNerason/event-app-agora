@@ -45,4 +45,5 @@ export interface EventStats {
   title: string;
   interests_count: number;
   no_interests_count: number;
+  start_date: string | null;
 }
