@@ -48,7 +48,15 @@ export function UserMenu({ userProfile, onSignOut }: UserMenuProps) {
             <span>Dashboard</span>
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem onClick={() => navigate("/organizer/profiles")}>
+        <DropdownMenuItem
+          onClick={() =>
+            navigate(
+              userProfile.role === "organizer"
+                ? "/organizer/profiles"
+                : "/user/profiles"
+            )
+          }
+        >
           <User className="mr-2 h-4 w-4" />
           <span>Profil</span>
         </DropdownMenuItem>
