@@ -13,7 +13,7 @@ import { useSession } from "@/hooks/useSession";
 import { useUsers } from "@/hooks/useUser";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Plus } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEventsByUser } from "../hooks/useEvents";
 import { EventStatus } from "../types";
@@ -84,12 +84,13 @@ function Dashboard() {
               <TableHead>Date de fin</TableHead>
               <TableHead>Lieu</TableHead>
               <TableHead>Statut</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {!events || events.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8">
+                <TableCell colSpan={7} className="text-center py-8">
                   Aucun événement trouvé. Commencez par en créer un !
                 </TableCell>
               </TableRow>
@@ -110,6 +111,17 @@ function Dashboard() {
                   <TableCell>{formatDate(event.end_date)}</TableCell>
                   <TableCell>{event.location || "Non défini"}</TableCell>
                   <TableCell>{renderStatusBadge(event.status)}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() =>
+                        navigate(`/organizer/events/edit/${event.id}`)
+                      }
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))
             )}
