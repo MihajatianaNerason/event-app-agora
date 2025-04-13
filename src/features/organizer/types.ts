@@ -10,7 +10,8 @@ export interface Event {
   description: string;
   contact: string;
   status: EventStatus;
-  date: Date | string | null;
+  start_date: Date | string | null;
+  end_date: Date | string | null;
   created_by: number;
   image_url?: string | null;
   location?: string | null;
@@ -20,9 +21,11 @@ export interface Event {
 export interface EventFormData {
   title: string;
   description: string;
-  date: string;
+  start_date: string;
+  end_date: string;
   location: string;
   contact: string;
+  status: EventStatus;
   eventImage?: FileList;
 }
 

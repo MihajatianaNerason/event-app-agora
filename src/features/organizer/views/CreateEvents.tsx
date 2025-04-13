@@ -1,5 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useSession } from "@/hooks/useSession";
 import { useUsers } from "@/hooks/useUser";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,6 +18,7 @@ import { z } from "zod";
 import { useCreateEvent } from "../hooks/useCreateEvent";
 import {
   EventFormData,
+  EventStatus,
   MAX_DESCRIPTION_LENGTH,
   MAX_TITLE_LENGTH,
 } from "../types";
@@ -29,9 +37,13 @@ const eventFormSchema = z.object({
     .max(MAX_DESCRIPTION_LENGTH, {
       message: `La description ne doit pas dépasser ${MAX_DESCRIPTION_LENGTH} caractères`,
     }),
-  date: z.string().min(1, { message: "La date est requise" }),
+  start_date: z.string().min(1, { message: "La date de début est requise" }),
+  end_date: z.string().min(1, { message: "La date de fin est requise" }),
   location: z.string().min(1, { message: "Le lieu est requis" }),
   contact: z.string().min(1, { message: "Le contact est requis" }),
+  status: z.nativeEnum(EventStatus, {
+    message: "Le statut de l'événement est requis",
+  }),
   eventImage: z
     .instanceof(FileList)
     .optional()
@@ -59,9 +71,11 @@ function CreateEvents() {
     defaultValues: {
       title: "",
       description: "",
-      date: "",
+      start_date: "",
+      end_date: "",
       location: "",
       contact: "",
+      status: EventStatus.DRAFT,
     },
   });
 
@@ -69,6 +83,7 @@ function CreateEvents() {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = form;
 
   // Gérer la soumission du formulaire
@@ -83,7 +98,9 @@ function CreateEvents() {
     // Convertir en EventFormData
     const eventFormData: EventFormData = {
       ...data,
-      date: data.date,
+      start_date: data.start_date,
+      end_date: data.end_date,
+      status: data.status,
     };
 
     mutate(
@@ -151,12 +168,43 @@ function CreateEvents() {
         </div>
 
         <div className="space-y-2">
-          <label className="block text-sm font-medium" htmlFor="date">
-            Date de l'événement*
+          <label className="block text-sm font-medium" htmlFor="start_date">
+            Date de début de l'événement*
           </label>
-          <Input id="date" type="date" {...register("date")} />
-          {errors.date && (
-            <p className="text-red-500 text-sm">{errors.date.message}</p>
+          <Input id="start_date" type="date" {...register("start_date")} />
+          {errors.start_date && (
+            <p className="text-red-500 text-sm">{errors.start_date.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <label className="block text-sm font-medium" htmlFor="end_date">
+            Date de fin de l'événement*
+          </label>
+          <Input id="end_date" type="date" {...register("end_date")} />
+          {errors.end_date && (
+            <p className="text-red-500 text-sm">{errors.end_date.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <label className="block text-sm font-medium" htmlFor="status">
+            Statut de l'événement*
+          </label>
+          <Select
+            defaultValue={EventStatus.DRAFT}
+            onValueChange={(value) => setValue("status", value as EventStatus)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Sélectionner un statut" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={EventStatus.DRAFT}>Non Officiel</SelectItem>
+              <SelectItem value={EventStatus.OFFICIALL}>Officiel</SelectItem>
+            </SelectContent>
+          </Select>
+          {errors.status && (
+            <p className="text-red-500 text-sm">{errors.status.message}</p>
           )}
         </div>
 

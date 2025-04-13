@@ -42,9 +42,9 @@ function Dashboard() {
       case EventStatus.DRAFT:
         return <Badge variant="outline">Non Officiel</Badge>;
       case EventStatus.OFFICIALL:
-        return <Badge variant="default">Officiel</Badge>;
+        return <Badge variant="destructive">Officiel</Badge>;
       default:
-        return <Badge variant="secondary">{status}</Badge>;
+        return <Badge variant="default">{status}</Badge>;
     }
   };
 
@@ -80,7 +80,8 @@ function Dashboard() {
             <TableRow>
               <TableHead>Titre</TableHead>
               <TableHead>Description</TableHead>
-              <TableHead>Date</TableHead>
+              <TableHead>Date de début</TableHead>
+              <TableHead>Date de fin</TableHead>
               <TableHead>Lieu</TableHead>
               <TableHead>Statut</TableHead>
             </TableRow>
@@ -88,7 +89,7 @@ function Dashboard() {
           <TableBody>
             {!events || events.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
+                <TableCell colSpan={6} className="text-center py-8">
                   Aucun événement trouvé. Commencez par en créer un !
                 </TableCell>
               </TableRow>
@@ -99,7 +100,8 @@ function Dashboard() {
                   <TableCell className="max-w-xs truncate">
                     {event.description}
                   </TableCell>
-                  <TableCell>{formatDate(event.date)}</TableCell>
+                  <TableCell>{formatDate(event.start_date)}</TableCell>
+                  <TableCell>{formatDate(event.end_date)}</TableCell>
                   <TableCell>{event.location || "Non défini"}</TableCell>
                   <TableCell>{renderStatusBadge(event.status)}</TableCell>
                 </TableRow>

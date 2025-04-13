@@ -1,5 +1,5 @@
 import { supabase } from "@/utils/supabaseClient";
-import { Event, EventFormData, EventStatus } from "../types";
+import { Event, EventFormData } from "../types";
 
 /**
  * Fetches all events from the database
@@ -80,10 +80,11 @@ export async function createEvent(
       {
         title: eventData.title,
         description: eventData.description,
-        date: eventData.date,
+        start_date: eventData.start_date,
+        end_date: eventData.end_date,
         location: eventData.location,
         contact: eventData.contact,
-        status: EventStatus.DRAFT,
+        status: eventData.status,
         created_by: userId,
         image_url: imageUrl,
       },
