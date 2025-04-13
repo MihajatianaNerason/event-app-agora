@@ -8,7 +8,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { UserProfileData } from "@/hooks/useUserProfile";
-import { LogOut, User } from "lucide-react";
+import { LayoutDashboard, LogOut, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { UserAvatar } from "./UserAvatar";
 
 interface UserMenuProps {
@@ -20,6 +21,8 @@ interface UserMenuProps {
  * Menu dropdown utilisateur avec options de navigation et déconnexion
  */
 export function UserMenu({ userProfile, onSignOut }: UserMenuProps) {
+  const navigate = useNavigate();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -39,7 +42,13 @@ export function UserMenu({ userProfile, onSignOut }: UserMenuProps) {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        {userProfile.role === "organizer" && (
+          <DropdownMenuItem onClick={() => navigate("/organizer/dashboard")}>
+            <LayoutDashboard className="mr-2 h-4 w-4" />
+            <span>Dashboard</span>
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuItem onClick={() => navigate("/organizer/profiles")}>
           <User className="mr-2 h-4 w-4" />
           <span>Profil</span>
         </DropdownMenuItem>
