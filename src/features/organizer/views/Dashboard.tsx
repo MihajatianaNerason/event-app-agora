@@ -96,9 +96,15 @@ function Dashboard() {
             ) : (
               events.map((event) => (
                 <TableRow key={event.id}>
-                  <TableCell className="font-medium">{event.title}</TableCell>
-                  <TableCell className="max-w-xs truncate">
-                    {event.description}
+                  <TableCell className="font-medium max-w-[150px]">
+                    <div className="truncate" title={event.title}>
+                      {event.title}
+                    </div>
+                  </TableCell>
+                  <TableCell className="max-w-[250px]">
+                    <div className="truncate" title={event.description}>
+                      {event.description}
+                    </div>
                   </TableCell>
                   <TableCell>{formatDate(event.start_date)}</TableCell>
                   <TableCell>{formatDate(event.end_date)}</TableCell>

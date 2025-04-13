@@ -24,37 +24,49 @@ import {
 } from "../types";
 
 // Schéma de validation pour le formulaire d'ajout d'événement
-const eventFormSchema = z.object({
-  title: z
-    .string()
-    .min(1, { message: "Le titre est requis" })
-    .max(MAX_TITLE_LENGTH, {
-      message: `Le titre ne doit pas dépasser ${MAX_TITLE_LENGTH} caractères`,
+const eventFormSchema = z
+  .object({
+    title: z
+      .string()
+      .min(1, { message: "Le titre est requis" })
+      .max(MAX_TITLE_LENGTH, {
+        message: `Le titre ne doit pas dépasser ${MAX_TITLE_LENGTH} caractères`,
+      }),
+    description: z
+      .string()
+      .min(1, { message: "La description est requise" })
+      .max(MAX_DESCRIPTION_LENGTH, {
+        message: `La description ne doit pas dépasser ${MAX_DESCRIPTION_LENGTH} caractères`,
+      }),
+    start_date: z.string().min(1, { message: "La date de début est requise" }),
+    end_date: z.string().min(1, { message: "La date de fin est requise" }),
+    location: z.string().min(1, { message: "Le lieu est requis" }),
+    contact: z.string().min(1, { message: "Le contact est requis" }),
+    status: z.nativeEnum(EventStatus, {
+      message: "Le statut de l'événement est requis",
     }),
-  description: z
-    .string()
-    .min(1, { message: "La description est requise" })
-    .max(MAX_DESCRIPTION_LENGTH, {
-      message: `La description ne doit pas dépasser ${MAX_DESCRIPTION_LENGTH} caractères`,
-    }),
-  start_date: z.string().min(1, { message: "La date de début est requise" }),
-  end_date: z.string().min(1, { message: "La date de fin est requise" }),
-  location: z.string().min(1, { message: "Le lieu est requis" }),
-  contact: z.string().min(1, { message: "Le contact est requis" }),
-  status: z.nativeEnum(EventStatus, {
-    message: "Le statut de l'événement est requis",
-  }),
-  eventImage: z
-    .instanceof(FileList)
-    .optional()
-    .refine(
-      (files) =>
-        !files || files.length === 0 || files[0].size <= 5 * 1024 * 1024,
-      {
-        message: "L'image ne doit pas dépasser 5 Mo",
-      }
-    ),
-});
+    eventImage: z
+      .instanceof(FileList)
+      .optional()
+      .refine(
+        (files) =>
+          !files || files.length === 0 || files[0].size <= 5 * 1024 * 1024,
+        {
+          message: "L'image ne doit pas dépasser 5 Mo",
+        }
+      ),
+  })
+  .refine(
+    (data) => {
+      const startDate = new Date(data.start_date);
+      const endDate = new Date(data.end_date);
+      return endDate >= startDate;
+    },
+    {
+      message: "La date de fin ne peut pas être antérieure à la date de début",
+      path: ["end_date"], // Cela montrera l'erreur sous le champ end_date
+    }
+  );
 
 type EventFormValues = z.infer<typeof eventFormSchema>;
 
