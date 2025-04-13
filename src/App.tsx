@@ -5,6 +5,7 @@ import {
   Routes,
 } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
+import ScrollToTop from "./components/ScrollToTop";
 import { Section } from "./components/Section";
 import RegisterEmail from "./features/auth/RegisterEmail";
 import VerifyEmail from "./features/auth/VerifyEmail";
@@ -38,6 +39,7 @@ function App() {
                 <div className="container mx-auto px-4 py-6">
                   <Outlet />
                 </div>
+                <ScrollToTop />
               </Section>
             }
           >
