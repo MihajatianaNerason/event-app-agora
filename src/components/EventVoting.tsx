@@ -1,5 +1,5 @@
 import { useUsers } from "@/hooks/useUser";
-import { ThumbsDown, ThumbsUp } from "lucide-react";
+import { ArrowBigDown, ArrowBigUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSession } from "../hooks/useSession";
 import { cn } from "../lib/utils";
@@ -203,32 +203,34 @@ export function EventVoting({ eventId, className }: EventVotingProps) {
   return (
     <div className={cn("flex items-center gap-4", className)}>
       <Button
-        variant="ghost"
+        variant="outline"
         size="sm"
         disabled={isLoading}
         onClick={() => handleVote("interested")}
         className={cn(
           "flex items-center gap-2",
           userVote === "interested" &&
-            "bg-green-100 text-green-700 hover:bg-green-200 hover:text-green-800"
+            "bg-green-100 border-green-700 text-green-700 hover:bg-green-200 hover:text-green-800"
         )}
       >
-        <ThumbsUp className="h-4 w-4" />
+        <ArrowBigUp className="h-4 w-4" />
+        <p>Intéressant</p>
         <span>{voteStats.interests}</span>
       </Button>
 
       <Button
-        variant="ghost"
+        variant="outline"
         size="sm"
         disabled={isLoading}
         onClick={() => handleVote("not_interested")}
         className={cn(
           "flex items-center gap-2",
           userVote === "not_interested" &&
-            "bg-red-100 text-red-700 hover:bg-red-200 hover:text-red-800"
+            "bg-red-100 border-red-700 text-red-700 hover:bg-red-200 hover:text-red-800"
         )}
       >
-        <ThumbsDown className="h-4 w-4" />
+        <ArrowBigDown className="h-4 w-4" />
+        <p>Pas Intéressant</p>
         <span>{voteStats.no_interests}</span>
       </Button>
     </div>
