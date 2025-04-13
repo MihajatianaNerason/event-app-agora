@@ -13,6 +13,7 @@ import Profiles from "./features/organizer/Profiles";
 import CreateEvents from "./features/organizer/views/CreateEvents";
 import Dashboard from "./features/organizer/views/Dashboard";
 import EditEvent from "./features/organizer/views/EditEvent";
+import Stats from "./features/organizer/views/Stats";
 import ProfilesUser from "./features/user/ProfilesUser";
 import EventList from "./pages/EventList";
 import Home from "./pages/Home";
@@ -55,6 +56,7 @@ function App() {
                 path="/organizer/events/edit/:id"
                 element={<EditEvent />}
               />
+              <Route path="/organizer/stats" element={<Stats />} />
             </Route>
             <Route element={<RoleRoute allowedRole="participant" />}>
               <Route path="/user/profiles" element={<ProfilesUser />} />
