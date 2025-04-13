@@ -32,7 +32,6 @@ export function EventVoting({ eventId, className }: EventVotingProps) {
   // Fonction pour charger les statistiques de vote
   const loadVoteStats = async () => {
     if (!eventId) return;
-
     try {
       // Récupérer le nombre de votes "interested"
       const { count: interestCount, error: interestError } = await supabase
@@ -61,7 +60,6 @@ export function EventVoting({ eventId, className }: EventVotingProps) {
   // Fonction pour charger le vote de l'utilisateur
   const loadUserVote = async () => {
     if (!eventId || !user?.[0]?.id) return;
-
     try {
       // Vérifier si l'utilisateur a voté "interested"
       const { data: interestVote, error: interestError } = await supabase
@@ -95,11 +93,54 @@ export function EventVoting({ eventId, className }: EventVotingProps) {
     }
   };
 
-  // Charger les stats et le vote de l'utilisateur au montage
+  // Charger les stats et le vote de l'utilisateur au montage du composant
   useEffect(() => {
     loadVoteStats();
     loadUserVote();
   }, [eventId, user]);
+
+  // Souscription en temps réel pour mettre à jour les votes instantanément
+  useEffect(() => {
+    if (!eventId) return;
+
+    // Souscription pour les votes "interested"
+    const interestsSubscription = supabase
+      .channel(`user_interests:event_id=eq.${eventId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "user_interests",
+        },
+        () => {
+          loadVoteStats();
+        }
+      )
+      .subscribe();
+
+    // Souscription pour les votes "not interested"
+    const noInterestsSubscription = supabase
+      .channel(`user_no_interests:event_id=eq.${eventId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "user_no_interests",
+        },
+        () => {
+          loadVoteStats();
+        }
+      )
+      .subscribe();
+
+    // Nettoyer les abonnements lors du démontage ou du changement d'eventId
+    return () => {
+      supabase.removeChannel(interestsSubscription);
+      supabase.removeChannel(noInterestsSubscription);
+    };
+  }, [eventId]);
 
   const handleVote = async (type: "interested" | "not_interested") => {
     if (!eventId || !user?.[0]?.id || isLoading) return;
@@ -120,7 +161,7 @@ export function EventVoting({ eventId, className }: EventVotingProps) {
 
         setUserVote(null);
       } else {
-        // Si l'utilisateur avait un vote différent, le supprimer d'abord
+        // Si l'utilisateur avait voté autrement, le supprimer d'abord
         if (userVote) {
           const oldTable =
             userVote === "interested" ? "user_interests" : "user_no_interests";
@@ -148,8 +189,7 @@ export function EventVoting({ eventId, className }: EventVotingProps) {
 
         setUserVote(type);
       }
-
-      // Recharger les statistiques
+      // Recharger les statistiques après modification
       await loadVoteStats();
     } catch (error) {
       console.error("Error in handleVote:", error);
