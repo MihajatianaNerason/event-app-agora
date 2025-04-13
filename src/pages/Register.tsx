@@ -1,3 +1,4 @@
+import { InputPassword } from "@/components/InputPassword";
 import { Loader } from "@/components/Loader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -5,8 +6,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/utils/supabaseClient";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Eye, EyeOff, Mail } from "lucide-react";
-import { useState } from "react";
+import { Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -31,8 +31,6 @@ type FormData = z.infer<typeof schema>;
 
 export default function Register() {
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
@@ -58,8 +56,6 @@ export default function Register() {
 
       if (error) throw error;
 
-      // Au lieu de rediriger directement vers register-email, nous allons rediriger
-      // vers une page qui indique à l'utilisateur de vérifier son email
       navigate("/auth/verify-email", { state: { email } });
     },
   });
@@ -84,55 +80,17 @@ export default function Register() {
                 )}
               </div>
 
-              <div className="relative">
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Mot de passe"
-                  {...register("password")}
-                  className="pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-                {errors.password && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.password.message}
-                  </p>
-                )}
-              </div>
+              <InputPassword
+                placeholder="Mot de passe"
+                {...register("password")}
+                error={errors.password?.message}
+              />
 
-              <div className="relative">
-                <Input
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Confirmer le mot de passe"
-                  {...register("confirmPassword")}
-                  className="pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-                {errors.confirmPassword && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.confirmPassword.message}
-                  </p>
-                )}
-              </div>
+              <InputPassword
+                placeholder="Confirmer le mot de passe"
+                {...register("confirmPassword")}
+                error={errors.confirmPassword?.message}
+              />
 
               {isError && (
                 <p className="text-red-500 text-sm mt-1">{error.message}</p>
