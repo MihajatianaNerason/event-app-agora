@@ -13,7 +13,7 @@ import { useSession } from "@/hooks/useSession";
 import { useUsers } from "@/hooks/useUser";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Pencil, Plus } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEventsByUser } from "../hooks/useEvents";
 import { EventStatus } from "../types";
@@ -40,9 +40,23 @@ function Dashboard() {
   const renderStatusBadge = (status: EventStatus) => {
     switch (status) {
       case EventStatus.DRAFT:
-        return <Badge variant="outline">Non Officiel</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="border-violet-600 text-violet-600 hover:bg-violet-600 hover:text-white"
+          >
+            Non Officiel
+          </Badge>
+        );
       case EventStatus.OFFICIALL:
-        return <Badge variant="destructive">Officiel</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
+          >
+            Officiel
+          </Badge>
+        );
       default:
         return <Badge variant="default">{status}</Badge>;
     }
@@ -97,7 +111,7 @@ function Dashboard() {
             ) : (
               events.map((event) => (
                 <TableRow key={event.id}>
-                  <TableCell className="font-medium max-w-[150px]">
+                  <TableCell className="font-medium max-w-[100px]">
                     <div className="truncate" title={event.title}>
                       {event.title}
                     </div>
@@ -118,8 +132,16 @@ function Dashboard() {
                       onClick={() =>
                         navigate(`/organizer/events/edit/${event.id}`)
                       }
+                      className="hover:border-2 hover:border-black hover:text-black mr-2"
                     >
                       <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="border-red-600 text-red-600 hover:bg-red-600 hover:text-red-200"
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </TableCell>
                 </TableRow>
