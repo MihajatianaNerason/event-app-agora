@@ -1,5 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -11,10 +19,14 @@ import {
 } from "@/components/ui/table";
 import { useSession } from "@/hooks/useSession";
 import { useUsers } from "@/hooks/useUser";
+import { supabase } from "@/utils/supabaseClient";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast, Toaster } from "sonner";
 import { useEventsByUser } from "../hooks/useEvents";
 import { EventStatus } from "../types";
 
@@ -26,8 +38,56 @@ function Dashboard() {
     data: events,
     isLoading,
     error,
-  } = useEventsByUser(Number(user?.[0].id));
+  } = useEventsByUser(Number(user?.[0]?.id));
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  // État pour gérer le modal de confirmation
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState<number | null>(null);
+
+  // Mutation pour supprimer un événement
+  const deleteEventMutation = useMutation({
+    mutationFn: async (eventId: number) => {
+      // Supprimer d'abord les entrées dans user_interests
+      const { error: interestsError } = await supabase
+        .from("user_interests")
+        .delete()
+        .eq("event_id", eventId);
+
+      if (interestsError) throw interestsError;
+
+      // Ensuite supprimer l'événement
+      const { error: eventError } = await supabase
+        .from("events")
+        .delete()
+        .eq("id", eventId);
+
+      if (eventError) throw eventError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      toast.success("L'événement a été supprimé avec succès");
+      setIsDeleteDialogOpen(false);
+    },
+    onError: (error: Error) => {
+      toast.error(
+        `Une erreur est survenue lors de la suppression: ${error.message}`
+      );
+    },
+  });
+
+  const handleDeleteClick = (eventId: number) => {
+    setEventToDelete(eventId);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (eventToDelete) {
+      deleteEventMutation.mutate(eventToDelete);
+    }
+  };
+
   const formatDate = (dateString: string | Date | null) => {
     if (!dateString) return "Non définie";
     try {
@@ -68,6 +128,7 @@ function Dashboard() {
 
   return (
     <div className="space-y-6">
+      <Toaster position="top-right" />
       <div className="flex flex-col items-start gap-4 md:flex-row  md:items-center justify-between">
         <div className="flex flex-col gap-3 md:flex-row md:items-center ">
           <h1 className="text-2xl font-bold tracking-tight">Tableau de bord</h1>
@@ -140,6 +201,7 @@ function Dashboard() {
                       variant="outline"
                       size="icon"
                       className="border-red-600 text-red-600 hover:bg-red-600 hover:text-red-200"
+                      onClick={() => event.id && handleDeleteClick(event.id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -150,6 +212,37 @@ function Dashboard() {
           </TableBody>
         </Table>
       )}
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmer la suppression</DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir supprimer cet événement ? Cette action
+              est irréversible.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              disabled={deleteEventMutation.isPending}
+            >
+              {deleteEventMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Supprimer"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
