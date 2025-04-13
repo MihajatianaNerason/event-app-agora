@@ -214,7 +214,7 @@ function Stats() {
                         fill="var(--chart-1)"
                         dataKey="value"
                       >
-                        {[0, 1].map((entry, index) => (
+                        {[0, 1].map((index) => (
                           <Cell
                             key={`cell-${index}`}
                             fill={COLORS[index % COLORS.length]}
@@ -274,7 +274,7 @@ function Stats() {
                             fill="var(--chart-1)"
                             dataKey="value"
                           >
-                            {[0, 1].map((entry, index) => (
+                            {[0, 1].map((index) => (
                               <Cell
                                 key={`cell-${index}`}
                                 fill={COLORS[index % COLORS.length]}
