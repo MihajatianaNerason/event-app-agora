@@ -16,9 +16,11 @@ import EditEvent from "./features/organizer/views/EditEvent";
 import Stats from "./features/organizer/views/Stats";
 import ProfilesUser from "./features/user/ProfilesUser";
 import EventList from "./pages/EventList";
+import ForgotPassword from "./pages/ForgotPassword";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ResetPassword from "./pages/ResetPassword";
 import ProtectedRoute from "./ProtectedRoutes";
 import RoleRoute from "./RoleRoute";
 
@@ -31,6 +33,8 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/auth/register-email" element={<RegisterEmail />} />
         <Route path="/auth/verify-email" element={<VerifyEmail />} />
+        <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+        <Route path="/auth/reset-password" element={<ResetPassword />} />
 
         <Route element={<ProtectedRoute />}>
           <Route

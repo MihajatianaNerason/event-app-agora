@@ -1,9 +1,12 @@
 import EventCard from "@/components/EventCard";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEvents } from "@/features/organizer/hooks/useEvents";
 import { Event, EventStatus } from "@/features/organizer/types";
-import { Loader2 } from "lucide-react";
+import { useDebounce } from "@/hooks/useDebounce";
+import { UseInfiniteQueryResult } from "@tanstack/react-query";
+import { CalendarRange, Loader2, Search } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 function EventList() {
@@ -14,9 +17,11 @@ function EventList() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useEvents();
+  } = useEvents() as UseInfiniteQueryResult<Event[], Error>;
 
   const [filterStatus, setFilterStatus] = useState<EventStatus | "all">("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery, 300);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // Intersection Observer pour l'infinite scroll
@@ -45,11 +50,28 @@ function EventList() {
 
   // Filtrer les événements de toutes les pages
   const filteredEvents = useMemo(() => {
-    const allEvents = data?.pages?.flatMap((page: Event[]) => page) ?? [];
-    return filterStatus === "all"
-      ? allEvents
-      : allEvents.filter((event: Event) => event.status === filterStatus);
-  }, [data, filterStatus]);
+    if (!data) return [];
+    const allEvents = data.pages.flatMap((page: Event[]) => page);
+
+    return allEvents
+      .filter((event: Event) => {
+        const matchesStatus =
+          filterStatus === "all" || event.status === filterStatus;
+        const matchesSearch =
+          debouncedSearch === "" ||
+          event.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+          event.description
+            .toLowerCase()
+            .includes(debouncedSearch.toLowerCase());
+
+        return matchesStatus && matchesSearch;
+      })
+      .sort((a: Event, b: Event) => {
+        const dateA = new Date(a.start_date || 0);
+        const dateB = new Date(b.start_date || 0);
+        return dateB.getTime() - dateA.getTime(); // Tri par date décroissante
+      });
+  }, [data, filterStatus, debouncedSearch]);
 
   if (error) {
     return <div className="text-red-500">Erreur: {error.message}</div>;
@@ -58,22 +80,38 @@ function EventList() {
   return (
     <>
       {/* Header with title and filter buttons */}
-      <div className="sticky top-0 bg-background pt-4 pb-3 z-10 border-b mb-4">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              Liste des événements
-            </h1>
-            <p className="text-muted-foreground">
-              Découvrez tous les événements disponibles
-            </p>
+      <div className="sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pt-4 pb-3 z-10 border-b mb-4">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">
+                Liste des événements
+              </h1>
+              <p className="text-muted-foreground">
+                Découvrez tous les événements disponibles
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1 md:min-w-[300px]">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Rechercher un événement..."
+                  className="pl-8"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
+
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               variant={filterStatus === "all" ? "default" : "outline"}
               onClick={() => setFilterStatus("all")}
               size="sm"
+              className="flex items-center gap-2"
             >
+              <CalendarRange className="h-4 w-4" />
               Tous
             </Button>
             <Button
@@ -82,6 +120,7 @@ function EventList() {
               }
               onClick={() => setFilterStatus(EventStatus.OFFICIALL)}
               size="sm"
+              className="flex items-center gap-2"
             >
               Officiels
             </Button>
@@ -91,12 +130,14 @@ function EventList() {
               }
               onClick={() => setFilterStatus(EventStatus.DRAFT)}
               size="sm"
+              className="flex items-center gap-2"
             >
               Non Officiels
             </Button>
           </div>
         </div>
       </div>
+
       <div className="max-w-xl mx-auto px-4">
         {/* Event list */}
         <div className="space-y-4">
@@ -110,7 +151,9 @@ function EventList() {
             <div className="text-center py-12 bg-muted/30 rounded-lg">
               <h3 className="text-lg font-medium">Aucun événement trouvé</h3>
               <p className="text-muted-foreground mt-2">
-                Aucun événement ne correspond à vos critères de recherche
+                {searchQuery
+                  ? "Aucun événement ne correspond à votre recherche"
+                  : "Aucun événement ne correspond à vos critères de filtrage"}
               </p>
             </div>
           ) : (
