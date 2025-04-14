@@ -5,6 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Bell } from "lucide-react";
@@ -15,8 +16,17 @@ export const NotificationBell: React.FC = () => {
   const { notifications, unreadCount, markAsRead, markAllAsRead } =
     useNotifications();
 
-  const handleNotificationClick = (notificationId: number) => {
-    markAsRead(notificationId);
+  const getNotificationStyles = (isRead: boolean, status: string) => {
+    return cn(
+      "flex flex-col items-start gap-1 cursor-pointer p-2 rounded-md transition-colors",
+      {
+        "bg-accent/50": !isRead,
+        "hover:bg-accent/30": true,
+        "border-l-4": !isRead,
+        "border-l-green-500": !isRead && status === "official",
+        "border-l-violet-500": !isRead && status !== "official",
+      }
+    );
   };
 
   return (
@@ -31,7 +41,7 @@ export const NotificationBell: React.FC = () => {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[350px] p-2">
+      <DropdownMenuContent align="end" className="w-[350px] p-2 space-y-1">
         {notifications.length === 0 ? (
           <DropdownMenuItem disabled className="text-muted-foreground">
             Aucune notification
@@ -40,32 +50,35 @@ export const NotificationBell: React.FC = () => {
           <>
             <DropdownMenuItem
               onClick={() => markAllAsRead()}
-              className="text-primary cursor-pointer border-b "
+              className="text-primary cursor-pointer border-b hover:bg-accent/50 font-medium"
             >
               Marquer tout comme lu
             </DropdownMenuItem>
-            {notifications.map((notification) => (
-              <DropdownMenuItem
-                key={notification.id}
-                onClick={() => handleNotificationClick(notification.id)}
-                className={`flex flex-col items-start gap-1 cursor-pointer ${
-                  !notification.is_read ? "bg-accent" : ""
-                }`}
-              >
-                <div className="font-medium text-violet-500">
-                  {notification.title}
+            <div className="max-h-[400px] overflow-y-auto space-y-1">
+              {notifications.map((notification) => (
+                <div
+                  key={notification.id}
+                  onClick={() => markAsRead(notification.id)}
+                  className={getNotificationStyles(
+                    notification.is_read,
+                    notification.event_status || "pending"
+                  )}
+                >
+                  <div className="font-medium text-sm">
+                    {notification.title}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {notification.message}
+                  </div>
+                  <div className="text-xs text-muted-foreground/75">
+                    {formatDistanceToNow(new Date(notification.created_at), {
+                      addSuffix: true,
+                      locale: fr,
+                    })}
+                  </div>
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  {notification.message}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {formatDistanceToNow(new Date(notification.created_at), {
-                    addSuffix: true,
-                    locale: fr,
-                  })}
-                </div>
-              </DropdownMenuItem>
-            ))}
+              ))}
+            </div>
           </>
         )}
       </DropdownMenuContent>

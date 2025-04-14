@@ -8,13 +8,21 @@ export interface Notification {
   title: string;
   message: string;
   is_read: boolean;
+  event_status: string;
 }
 
 export const notificationService = {
   async getUserNotifications(userId: number): Promise<Notification[]> {
     const { data, error } = await supabase
       .from("notifications")
-      .select("*")
+      .select(
+        `
+        *,
+        events!notifications_event_fk (
+          status
+        )
+      `
+      )
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
@@ -22,7 +30,11 @@ export const notificationService = {
       throw error;
     }
 
-    return data || [];
+    // Transformer les données pour inclure le statut de l'événement
+    return (data || []).map((notification) => ({
+      ...notification,
+      event_status: notification.events?.status || "pending",
+    }));
   },
 
   async markAsRead(notificationId: number): Promise<void> {
