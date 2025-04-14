@@ -2,19 +2,23 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useUserInterestStats } from "@/hooks/useUserInterestStats";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { Calendar, Mail, Pencil, Star, Ticket, User } from "lucide-react";
+import {
+  Calendar,
+  Mail,
+  Pencil,
+  ThumbsDown,
+  ThumbsUp,
+  User,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 
 function ProfilesUser() {
-  const { fullName, email, imageUrl, initials, role } = useUserProfile();
-
-  // Ces valeurs seront à connecter avec de vrais données plus tard
-  const stats = {
-    eventsParticipated: 0,
-    upcomingEvents: 0,
-    favoriteEvents: 0,
-  };
+  const { fullName, email, imageUrl, initials, role, userId } =
+    useUserProfile();
+  const { data: stats, isLoading: isLoadingStats } =
+    useUserInterestStats(userId);
 
   return (
     <div className="container mx-auto py-8">
@@ -52,34 +56,27 @@ function ProfilesUser() {
               </div>
 
               {/* Statistiques */}
-              <div className="grid grid-cols-3 gap-4 py-4 border-t border-b">
+              <div className="grid grid-cols-2 gap-4 py-4 border-t border-b">
                 <div className="text-center">
                   <div className="flex flex-col items-center">
-                    <Ticket className="h-4 w-4 text-muted-foreground mb-1" />
+                    <ThumbsUp className="h-4 w-4 text-green-500 mb-1" />
                     <div className="text-2xl font-bold">
-                      {stats.eventsParticipated}
+                      {isLoadingStats ? "-" : stats?.interest_count || 0}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Participations
+                      Événements intéressés
                     </div>
                   </div>
                 </div>
                 <div className="text-center">
                   <div className="flex flex-col items-center">
-                    <Calendar className="h-4 w-4 text-muted-foreground mb-1" />
+                    <ThumbsDown className="h-4 w-4 text-red-500 mb-1" />
                     <div className="text-2xl font-bold">
-                      {stats.upcomingEvents}
+                      {isLoadingStats ? "-" : stats?.no_interest_count || 0}
                     </div>
-                    <div className="text-xs text-muted-foreground">À venir</div>
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="flex flex-col items-center">
-                    <Star className="h-4 w-4 text-muted-foreground mb-1" />
-                    <div className="text-2xl font-bold">
-                      {stats.favoriteEvents}
+                    <div className="text-xs text-muted-foreground">
+                      Événements non intéressés
                     </div>
-                    <div className="text-xs text-muted-foreground">Favoris</div>
                   </div>
                 </div>
               </div>
