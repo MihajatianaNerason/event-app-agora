@@ -6,7 +6,13 @@ import { useEvents } from "@/features/organizer/hooks/useEvents";
 import { Event, EventStatus } from "@/features/organizer/types";
 import { useDebounce } from "@/hooks/useDebounce";
 import { InfiniteData } from "@tanstack/react-query";
-import { CalendarRange, Loader2, Search } from "lucide-react";
+import {
+  CalendarRange,
+  Loader2,
+  Search,
+  SortAsc,
+  SortDesc,
+} from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 function EventList() {
@@ -21,6 +27,7 @@ function EventList() {
 
   const [filterStatus, setFilterStatus] = useState<EventStatus | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const debouncedSearch = useDebounce(searchQuery, 300);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -59,7 +66,9 @@ function EventList() {
       return page.sort((a: Event, b: Event) => {
         const dateA = new Date(a.start_date || 0);
         const dateB = new Date(b.start_date || 0);
-        return dateB.getTime() - dateA.getTime();
+        return sortOrder === "asc"
+          ? dateA.getTime() - dateB.getTime()
+          : dateB.getTime() - dateA.getTime();
       });
     });
 
@@ -73,7 +82,7 @@ function EventList() {
 
       return matchesStatus && matchesSearch;
     });
-  }, [data, filterStatus, debouncedSearch]);
+  }, [data, filterStatus, debouncedSearch, sortOrder]);
 
   if (error) {
     return <div className="text-red-500">Erreur: {error.message}</div>;
@@ -135,6 +144,19 @@ function EventList() {
               className="flex items-center gap-2"
             >
               Non Officiels
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              {sortOrder === "asc" ? (
+                <SortAsc className="h-4 w-4" />
+              ) : (
+                <SortDesc className="h-4 w-4" />
+              )}
+              {sortOrder === "asc" ? "Plus proche" : "Plus éloigné"}
             </Button>
           </div>
         </div>

@@ -8,7 +8,7 @@ import {
 import { Event, EventStatus } from "@/features/organizer/types";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Calendar, MapPin, Phone, User } from "lucide-react";
+import { Calendar, MapPin, Phone } from "lucide-react";
 import { EventVoting } from "./EventVoting";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
@@ -119,11 +119,11 @@ function EventCard({ event }: EventCardProps) {
         <div className="flex items-center gap-2">
           <Avatar className="h-8 w-8 border-2">
             <AvatarImage src={event.users?.image_url || ""} />
-            <AvatarFallback>
-              <User className="h-4 w-4" />
+            <AvatarFallback className="bg-blue-500 text-white">
+              <span>{event.users?.full_name.charAt(0).toUpperCase()}</span>
             </AvatarFallback>
           </Avatar>
-          <span className="text-sm text-muted-foreground underline">
+          <span className="text-sm  underline">
             {event.users?.full_name || "Utilisateur inconnu"}
           </span>
         </div>
