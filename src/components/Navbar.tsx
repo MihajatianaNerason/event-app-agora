@@ -3,6 +3,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { Logo } from "./navbar/Logo";
 import { RoleBadge } from "./navbar/RoleBadge";
 import { UserMenu } from "./navbar/UserMenu";
+import { NotificationBell } from "./NotificationBell";
 
 /**
  * Composant Navbar - Barre de navigation principale de l'application
@@ -20,6 +21,9 @@ export function Navbar() {
 
         {/* Section utilisateur à droite */}
         <div className="flex items-center gap-2">
+          {/* Cloche de notification */}
+          <NotificationBell />
+
           {/* Badge du rôle */}
           <RoleBadge role={userProfile.role} />
 
