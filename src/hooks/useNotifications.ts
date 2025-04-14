@@ -79,6 +79,30 @@ export const useNotifications = () => {
     },
   });
 
+  // Mutation pour supprimer une notification
+  const deleteNotificationMutation = useMutation({
+    mutationFn: notificationService.deleteNotification,
+    onSuccess: (_, notificationId) => {
+      // Mise à jour optimiste du cache
+      queryClient.setQueryData<Notification[]>(
+        ["notifications", userId],
+        (old = []) => old.filter((n) => n.id !== notificationId)
+      );
+    },
+  });
+
+  // Mutation pour supprimer toutes les notifications
+  const deleteAllNotificationsMutation = useMutation({
+    mutationFn: () => notificationService.deleteAllNotifications(userId || 0),
+    onSuccess: () => {
+      // Mise à jour optimiste du cache
+      queryClient.setQueryData<Notification[]>(
+        ["notifications", userId],
+        () => []
+      );
+    },
+  });
+
   return {
     notifications,
     unreadCount,
@@ -86,6 +110,9 @@ export const useNotifications = () => {
     markAsRead: (notificationId: number) =>
       markAsReadMutation.mutate(notificationId),
     markAllAsRead: () => markAllAsReadMutation.mutate(),
+    deleteNotification: (notificationId: number) =>
+      deleteNotificationMutation.mutate(notificationId),
+    deleteAllNotifications: () => deleteAllNotificationsMutation.mutate(),
     refetch: () =>
       queryClient.invalidateQueries({ queryKey: ["notifications", userId] }),
   };

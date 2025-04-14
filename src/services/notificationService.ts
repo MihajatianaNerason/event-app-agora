@@ -58,4 +58,26 @@ export const notificationService = {
       throw error;
     }
   },
+
+  async deleteNotification(notificationId: number): Promise<void> {
+    const { error } = await supabase
+      .from("notifications")
+      .delete()
+      .eq("id", notificationId);
+
+    if (error) {
+      throw error;
+    }
+  },
+
+  async deleteAllNotifications(userId: number): Promise<void> {
+    const { error } = await supabase
+      .from("notifications")
+      .delete()
+      .eq("user_id", userId);
+
+    if (error) {
+      throw error;
+    }
+  },
 };
