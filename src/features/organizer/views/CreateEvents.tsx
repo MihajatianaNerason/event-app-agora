@@ -38,8 +38,32 @@ const eventFormSchema = z
       .max(MAX_DESCRIPTION_LENGTH, {
         message: `La description ne doit pas dépasser ${MAX_DESCRIPTION_LENGTH} caractères`,
       }),
-    start_date: z.string().min(1, { message: "La date de début est requise" }),
-    end_date: z.string().min(1, { message: "La date de fin est requise" }),
+    start_date: z
+      .string()
+      .min(1, { message: "La date de début est requise" })
+      .refine(
+        (date) => {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          return new Date(date) >= today;
+        },
+        {
+          message: "La date de début ne peut pas être dans le passé",
+        }
+      ),
+    end_date: z
+      .string()
+      .min(1, { message: "La date de fin est requise" })
+      .refine(
+        (date) => {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          return new Date(date) >= today;
+        },
+        {
+          message: "La date de fin ne peut pas être dans le passé",
+        }
+      ),
     location: z.string().min(1, { message: "Le lieu est requis" }),
     contact: z.string().min(1, { message: "Le contact est requis" }),
     status: z.nativeEnum(EventStatus, {
@@ -64,7 +88,7 @@ const eventFormSchema = z
     },
     {
       message: "La date de fin ne peut pas être antérieure à la date de début",
-      path: ["end_date"], // Cela montrera l'erreur sous le champ end_date
+      path: ["end_date"],
     }
   );
 
