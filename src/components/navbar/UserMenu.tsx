@@ -27,7 +27,10 @@ export function UserMenu({ userProfile, onSignOut }: UserMenuProps) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
-          <UserAvatar userProfile={userProfile} />
+          {/* Wrapping l'avatar pour ajouter la bordure */}
+          <div className="rounded-full shadow-[0_0_0_2px_rgba(139,92,246,0.7)]">
+            <UserAvatar userProfile={userProfile} />
+          </div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>

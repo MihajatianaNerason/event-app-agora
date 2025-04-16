@@ -42,7 +42,7 @@ function App() {
             element={
               <Section>
                 <Navbar />
-                <div className="container mx-auto px-4 py-6">
+                <div className="container md:mx-auto md:px-4 md:py-6">
                   <Outlet />
                 </div>
                 <ScrollToTop />

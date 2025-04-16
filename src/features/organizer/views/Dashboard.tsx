@@ -177,7 +177,7 @@ function Dashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mb-10">
       <Toaster position="top-right" />
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-center justify-between">

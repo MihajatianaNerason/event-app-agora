@@ -162,7 +162,7 @@ function EventList() {
         </div>
       </div>
 
-      <div className="max-w-xl mx-auto px-4">
+      <div className="w-full md:max-w-xl md:mx-auto md:px-4">
         {/* Event list */}
         <div className="space-y-4">
           {isLoading ? (

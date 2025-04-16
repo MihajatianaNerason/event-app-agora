@@ -114,9 +114,9 @@ function EventCard({ event }: EventCardProps) {
       </div>
 
       {/* Vote footer */}
-      <CardFooter className="flex justify-between items-center mt-4 pt-4 border-t">
+      <CardFooter className="flex flex-col gap-4 md:flex-row md:justify-between md:items-center border-t">
         {/* Creator info */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2  self-start">
           <Avatar className="h-8 w-8 border-2">
             <AvatarImage src={event.users?.image_url || ""} />
             <AvatarFallback className="bg-blue-500 text-white">
@@ -127,7 +127,7 @@ function EventCard({ event }: EventCardProps) {
             {event.users?.full_name || "Utilisateur inconnu"}
           </span>
         </div>
-        <EventVoting eventId={event.id} className="flex-col md:flex-row" />
+        <EventVoting eventId={event.id} className="" />
       </CardFooter>
     </Card>
   );
