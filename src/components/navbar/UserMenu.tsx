@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { UserProfileData } from "@/hooks/useUserProfile";
-import { ChartPie, LayoutDashboard, LogOut, User } from "lucide-react";
+import { ChartPie, Heart, LayoutDashboard, LogOut, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { UserAvatar } from "./UserAvatar";
 
@@ -56,6 +56,12 @@ export function UserMenu({ userProfile, onSignOut }: UserMenuProps) {
               <span>Stats</span>
             </DropdownMenuItem>
           </>
+        )}
+        {userProfile.role === "participant" && (
+          <DropdownMenuItem onClick={() => navigate("/user/interests")}>
+            <Heart className="mr-2 h-4 w-4" />
+            <span>Mes Intérêts</span>
+          </DropdownMenuItem>
         )}
         <DropdownMenuItem
           onClick={() =>

@@ -20,8 +20,10 @@ import EventList from "./pages/EventList";
 import ForgotPassword from "./pages/ForgotPassword";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import OrganizerProfile from "./pages/OrganizerProfile";
 import Register from "./pages/Register";
 import ResetPassword from "./pages/ResetPassword";
+import UserInterests from "./pages/UserInterests";
 import ProtectedRoute from "./ProtectedRoutes";
 import RoleRoute from "./RoleRoute";
 
@@ -50,6 +52,7 @@ function App() {
             }
           >
             <Route path="/events" element={<EventList />} />
+            <Route path="/organizer/:id" element={<OrganizerProfile />} />
             <Route element={<RoleRoute allowedRole="organizer" />}>
               <Route path="/organizer/profiles" element={<Profiles />} />
               <Route path="/organizer/dashboard" element={<Dashboard />} />
@@ -67,6 +70,7 @@ function App() {
             </Route>
             <Route element={<RoleRoute allowedRole="participant" />}>
               <Route path="/user/profiles" element={<ProfilesUser />} />
+              <Route path="/user/interests" element={<UserInterests />} />
               <Route path="/profile" element={<ProfilesUser />} />
               <Route path="/profile/edit" element={<EditProfile />} />
             </Route>

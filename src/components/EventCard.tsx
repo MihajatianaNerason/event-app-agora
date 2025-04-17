@@ -9,6 +9,7 @@ import { Event, EventStatus } from "@/features/organizer/types";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Calendar, MapPin, Phone } from "lucide-react";
+import { Link } from "react-router-dom";
 import { EventVoting } from "./EventVoting";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
@@ -116,16 +117,23 @@ function EventCard({ event }: EventCardProps) {
       {/* Vote footer */}
       <CardFooter className="flex flex-col gap-4 md:flex-row md:justify-between md:items-center border-t">
         {/* Creator info */}
-        <div className="flex items-center gap-2  self-start">
-          <Avatar className="h-8 w-8 border-2">
-            <AvatarImage src={event.users?.image_url || ""} />
-            <AvatarFallback className="bg-blue-500 text-white">
-              <span>{event.users?.full_name.charAt(0).toUpperCase()}</span>
-            </AvatarFallback>
-          </Avatar>
-          <span className="text-sm  underline">
-            {event.users?.full_name || "Utilisateur inconnu"}
-          </span>
+        <div className="flex items-center gap-2 self-start">
+          {event.users && (
+            <Link
+              to={`/organizer/${event.users.id}`}
+              className="flex items-center gap-2 hover:text-primary transition-colors"
+            >
+              <Avatar className="h-8 w-8 border-2">
+                <AvatarImage src={event.users?.image_url || ""} />
+                <AvatarFallback className="bg-blue-500 text-white">
+                  <span>{event.users?.full_name.charAt(0).toUpperCase()}</span>
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm underline">
+                {event.users?.full_name || "Utilisateur inconnu"}
+              </span>
+            </Link>
+          )}
         </div>
         <EventVoting eventId={event.id} className="" />
       </CardFooter>
