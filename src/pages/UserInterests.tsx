@@ -221,9 +221,6 @@ function UserInterests() {
                       {event.users?.full_name || "Utilisateur inconnu"}
                     </Link>
                   </div>
-                  <Button asChild size="sm" variant="outline">
-                    <Link to={`/events?id=${event.id}`}>Voir les détails</Link>
-                  </Button>
                 </div>
               </div>
             </div>

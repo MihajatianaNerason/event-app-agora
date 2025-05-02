@@ -61,6 +61,15 @@ export default function Register() {
     },
   });
 
+  // Add Google OAuth signup handler
+  const handleGoogleSignUp = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin + "/auth/register-email" },
+    });
+    if (error) console.error("Google sign-up error:", error);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <Card className="w-full max-w-md p-6 shadow-lg">
@@ -140,7 +149,11 @@ export default function Register() {
             </Button>
           </form>
           <div className="my-4 text-center text-sm text-gray-500">ou</div>
-          <Button variant="outline" className="w-full flex items-center gap-2">
+          <Button
+            variant="outline"
+            className="w-full flex items-center gap-2"
+            onClick={handleGoogleSignUp}
+          >
             S'inscrire avec Google
           </Button>
         </CardContent>
